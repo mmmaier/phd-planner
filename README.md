@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PhD Planner
 
-## Getting Started
+A calm, local-first research operating system for planning a PhD: a big calendar, daily checks,
+project tracking, a research library with a daily paper/video pick, a progress log, supervisor
+meeting notes, research questions, and a quick-capture inbox — all in one place, all on your own
+machine.
 
-First, run the development server:
+## Local-first, by design
+
+Everything lives in **IndexedDB in your browser**. There is no account, no login, no server, no
+analytics, and no telemetry. Nothing you enter is ever sent anywhere. Closing the tab doesn't lose
+anything; clearing your browser's site data for this app does.
+
+Back up or move your data any time from **Settings → Backup and portability**: export everything
+to a single JSON file, or import a backup to restore it (which replaces whatever's currently
+there). There's also a one-click "reset" if you want to start over, and a "load sample data"
+button if you just want to explore the app with fictional example content first.
+
+## Getting started
+
+Requires Node.js 20+.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev      # start the dev server
+npm run build    # production build
+npm run lint     # eslint
+npx tsc --noEmit # typecheck
+```
 
-## Learn More
+### Stack
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js](https://nextjs.org) (App Router) + TypeScript
+- [Tailwind CSS v4](https://tailwindcss.com) for styling, with a small custom design system
+  (`components/ui`) built on [Radix UI](https://www.radix-ui.com) primitives
+- [Dexie](https://dexie.org) over IndexedDB for persistence, with reactive reads via
+  [`dexie-react-hooks`](https://dexie.org/docs/dexie-react-hooks/dexie-react-hooks)
+- [Zustand](https://github.com/pmndrs/zustand) for the small amount of UI-only state (selected
+  calendar day, command palette open, etc.) — everything else is read live from IndexedDB
+- [Zod](https://zod.dev) to validate imported backup files, since that's the one place external
+  data enters the app
+- [Framer Motion](https://www.framer.com/motion/) for the small, deliberate bits of motion
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/            # routes (one folder per screen)
+  components/
+    ui/           # small design-system primitives
+    shell/        # navigation, command palette
+    dashboard/    # Today dashboard widgets
+    calendar/     # month/week grid, day drawer
+    projects/     # project list/detail
+    learnings/    # research library, Daily Learning Pick
+    settings/     # routines, preferences, backup/reset
+    shared/       # pieces reused across screens (e.g. the daily checklist)
+  lib/
+    db/           # Dexie schema (db.ts, types.ts) and one module per entity
+                   # (CRUD + live-query hooks), plus seed.ts (fictional demo data)
+    daily-pick.ts     # Daily Learning Pick selection algorithm
+    export-import.ts  # backup export/import/reset
+    calendar-items.ts # normalizes tasks/events/milestones for calendar rendering
+    dates.ts, constants.ts, utils.ts, id.ts
+  store/          # zustand UI store
+```
 
-## Deploy on Vercel
+The IndexedDB schema is versioned from the start (`db.ts`), so future changes can be added as
+additive Dexie migrations rather than breaking existing installs.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing / forking
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If you fork or clone this: your own data stays local to your own browser the moment you run it —
+there's nothing to configure. `lib/db/seed.ts` contains only fictional example content used by the
+in-app "load sample data" button; no real data is ever committed to this repository.
