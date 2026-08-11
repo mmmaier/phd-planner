@@ -57,7 +57,13 @@ export default function ProgressPage() {
           handleAdd();
         }}
       >
-        <Plus className="size-4 shrink-0 text-ink-faint" strokeWidth={1.75} />
+        <button
+          type="submit"
+          aria-label="Add"
+          className="shrink-0 rounded-md p-0.5 text-ink-faint transition-colors hover:text-ink"
+        >
+          <Plus className="size-4" strokeWidth={1.75} />
+        </button>
         <Input
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -103,10 +109,22 @@ export default function ProgressPage() {
                       key={entry.id}
                       className="flex items-start gap-3 rounded-lg px-2 py-1.5 hover:bg-ink/[0.03]"
                     >
-                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-type-milestone" />
+                      <span
+                        className="mt-1.5 size-1.5 shrink-0 rounded-full"
+                        style={{
+                          backgroundColor: project ? project.color : "var(--color-type-milestone)",
+                        }}
+                      />
                       <span className="flex-1 text-sm text-ink">{entry.text}</span>
                       {project && (
-                        <span className="shrink-0 text-xs text-ink-faint">{project.title}</span>
+                        <span
+                          className="shrink-0 rounded-full px-2 py-0.5 text-[11px] text-ink-muted"
+                          style={{
+                            backgroundColor: `color-mix(in oklab, ${project.color} 14%, transparent)`,
+                          }}
+                        >
+                          {project.title}
+                        </span>
                       )}
                       <span className="shrink-0 text-xs text-ink-faint">
                         {format(fromDateStamp(entry.date), "EEE")}

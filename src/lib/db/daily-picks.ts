@@ -37,8 +37,23 @@ export async function saveDailyPick(
     updatedAt: timestamp,
     ...changes,
   };
-  await db.dailyPicks.add(record);
-  return record;
+
+  try {
+    await db.dailyPicks.add(record);
+    return record;
+  } catch (err) {
+    // Another tab/caller inserted this date's row between our check and our
+    // add — the unique index on `date` rejects it. Fall back to updating
+    // whatever won the race instead of surfacing an error for this.
+    if (err instanceof Error && err.name === "ConstraintError") {
+      const winner = await getDailyPick(date);
+      if (winner) {
+        await db.dailyPicks.update(winner.id, { ...changes, updatedAt: timestamp });
+        return { ...winner, ...changes, updatedAt: timestamp };
+      }
+    }
+    throw err;
+  }
 }
 
 export function useRecentlyShownResourceIds(limit = 14): string[] | undefined {

@@ -64,20 +64,46 @@ async function loadContext(date: DateStamp) {
   };
 }
 
+// The dashboard mounts two DailyPickCards (paper + video) at once, and both
+// call ensureDailyPick(today) independently on mount. Without this cache
+// they'd race: both see "no pick yet" and both try to insert a row for the
+// same unique `date`, and the second one throws a ConstraintError. Caching
+// the in-flight promise per date means the second caller just awaits the
+// first caller's result instead of duplicating the work.
+const inFlight = new Map<DateStamp, Promise<Awaited<ReturnType<typeof saveDailyPick>>>>();
+
 export async function ensureDailyPick(date: DateStamp = todayStamp()) {
   const existing = await getDailyPick(date);
   if (existing) return existing;
 
-  const { resources, thresholdMinutes, focusTopicIds, recentlyShown } = await loadContext(date);
+  const cached = inFlight.get(date);
+  if (cached) return cached;
 
-  const paper = selectFrom(paperPool(resources), recentlyShown, focusTopicIds);
-  const video = selectFrom(videoPool(resources, thresholdMinutes), recentlyShown, focusTopicIds);
+  const promise = (async () => {
+    // Re-check after the first await above resolved — another caller may
+    // have already created it while we were fetching context.
+    const stillMissing = !(await getDailyPick(date));
+    if (!stillMissing) return (await getDailyPick(date))!;
 
-  return saveDailyPick(date, {
-    paperResourceId: paper?.id ?? null,
-    videoResourceId: video?.id ?? null,
-    shownResourceIds: [paper?.id, video?.id].filter((id): id is string => !!id),
-  });
+    const { resources, thresholdMinutes, focusTopicIds, recentlyShown } =
+      await loadContext(date);
+
+    const paper = selectFrom(paperPool(resources), recentlyShown, focusTopicIds);
+    const video = selectFrom(
+      videoPool(resources, thresholdMinutes),
+      recentlyShown,
+      focusTopicIds,
+    );
+
+    return saveDailyPick(date, {
+      paperResourceId: paper?.id ?? null,
+      videoResourceId: video?.id ?? null,
+      shownResourceIds: [paper?.id, video?.id].filter((id): id is string => !!id),
+    });
+  })().finally(() => inFlight.delete(date));
+
+  inFlight.set(date, promise);
+  return promise;
 }
 
 export async function reshufflePaperPick(date: DateStamp = todayStamp()) {

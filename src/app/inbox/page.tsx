@@ -53,7 +53,7 @@ export default function InboxPage() {
           e.preventDefault();
           handleCapture();
         }}
-        className="mb-8"
+        className="mb-8 flex items-center gap-2"
       >
         <Input
           autoFocus
@@ -62,6 +62,9 @@ export default function InboxPage() {
           placeholder="An idea, a paper, a URL, something to investigate…"
           className="py-3 text-base"
         />
+        <Button type="submit" size="md" disabled={!draft.trim()}>
+          Add
+        </Button>
       </form>
 
       {items === undefined ? (

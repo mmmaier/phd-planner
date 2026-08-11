@@ -69,7 +69,13 @@ export function TopicManager() {
             }}
           >
             <div className="flex items-center gap-2">
-              <Plus className="size-3.5 shrink-0 text-ink-faint" />
+              <button
+                type="submit"
+                aria-label="Add topic"
+                className="shrink-0 rounded-md p-0.5 text-ink-faint transition-colors hover:text-ink"
+              >
+                <Plus className="size-3.5" />
+              </button>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}

@@ -12,6 +12,7 @@ import { ProjectMilestones } from "@/components/projects/project-milestones";
 import { ProjectTasks } from "@/components/projects/project-tasks";
 import { ProjectLinks } from "@/components/projects/project-links";
 import { DangerZone } from "@/components/projects/danger-zone";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { useProject, updateProject } from "@/lib/db/projects";
 import { PROJECT_STATUSES, PRIORITIES } from "@/lib/db/types";
 import { PROJECT_STATUS_LABELS, PRIORITY_LABELS } from "@/lib/constants";
@@ -36,11 +37,24 @@ export default function ProjectDetailPage() {
         Projects
       </button>
 
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <EditableText
-          value={project.title}
-          onSave={(title) => updateProject(project.id, { title })}
-          className="font-display text-3xl"
+      <div className="mb-3 flex items-start justify-between gap-4">
+        <div className="flex flex-1 items-center gap-3">
+          <span
+            className="mt-1 size-3 shrink-0 rounded-full"
+            style={{ backgroundColor: project.color }}
+          />
+          <EditableText
+            value={project.title}
+            onSave={(title) => updateProject(project.id, { title })}
+            className="flex-1 font-display text-3xl"
+          />
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <ColorSwatchPicker
+          value={project.color}
+          onChange={(color) => updateProject(project.id, { color })}
         />
       </div>
 

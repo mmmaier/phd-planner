@@ -8,13 +8,16 @@ import { Panel, PanelHeading } from "@/components/ui/panel";
 import { Input } from "@/components/ui/input";
 import { toDateStamp, todayStamp } from "@/lib/dates";
 import { useProgressEntriesInRange, addProgressEntry } from "@/lib/db/progress-entries";
+import { useActiveProjects } from "@/lib/db/projects";
 
 export function ProgressPulse() {
   const today = todayStamp();
   const weekAgo = toDateStamp(subDays(new Date(), 6));
   const entries = useProgressEntriesInRange(weekAgo, today);
+  const projects = useActiveProjects();
 
   const [draft, setDraft] = useState("");
+  const lastEntryProject = projects?.find((p) => p.id === entries?.[0]?.projectId);
 
   async function handleAdd() {
     const text = draft.trim();
@@ -40,7 +43,13 @@ export function ProgressPulse() {
             <span className="font-medium">{entries.length}</span>{" "}
             {entries.length === 1 ? "entry" : "entries"} logged
           </p>
-          <p className="line-clamp-2 text-sm text-ink-muted">
+          <p className="line-clamp-2 flex items-start gap-1.5 text-sm text-ink-muted">
+            {lastEntryProject && (
+              <span
+                className="mt-1.5 size-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: lastEntryProject.color }}
+              />
+            )}
             &ldquo;{entries[0].text}&rdquo;
           </p>
         </>
@@ -53,7 +62,13 @@ export function ProgressPulse() {
           handleAdd();
         }}
       >
-        <Plus className="size-4 shrink-0 text-ink-faint" strokeWidth={1.75} />
+        <button
+          type="submit"
+          aria-label="Add"
+          className="shrink-0 rounded-md p-0.5 text-ink-faint transition-colors hover:text-ink"
+        >
+          <Plus className="size-4" strokeWidth={1.75} />
+        </button>
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}

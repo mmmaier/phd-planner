@@ -55,6 +55,13 @@ export class PhdPlannerDB extends Dexie {
       inboxItems: "id, createdAt",
       appSettings: "id",
     });
+
+    // v2: researchQuestions is sorted by updatedAt in the UI but that field
+    // was never indexed, which throws a SchemaError at query time. Adding it
+    // here so existing local databases get upgraded, not just fresh ones.
+    this.version(2).stores({
+      researchQuestions: "id, projectId, status, updatedAt",
+    });
   }
 }
 

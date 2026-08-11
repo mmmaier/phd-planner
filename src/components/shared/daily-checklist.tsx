@@ -128,7 +128,13 @@ export function DailyChecklist({ date }: { date: DateStamp }) {
           handleAdd();
         }}
       >
-        <Plus className="size-4 shrink-0 text-ink-faint" strokeWidth={1.75} />
+        <button
+          type="submit"
+          aria-label="Add"
+          className="shrink-0 rounded-md p-0.5 text-ink-faint transition-colors hover:text-ink"
+        >
+          <Plus className="size-4" strokeWidth={1.75} />
+        </button>
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
