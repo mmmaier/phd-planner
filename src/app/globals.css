@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf8f3;
+  --surface: #ffffff;
+  --surface-raised: #fffefb;
+  --ink: #262420;
+  --ink-muted: #726c62;
+  --ink-faint: #a39c8e;
+  --border: #e8e1d3;
+  --border-strong: #d8cfba;
+
+  --accent: #4b6358;
+  --accent-foreground: #f7f5ee;
+  --accent-hover: #3c5148;
+
+  --type-task: #5b7a9d;
+  --type-deadline: #b1543f;
+  --type-meeting: #8874a3;
+  --type-conference: #b98b2a;
+  --type-paper: #a15d8f;
+  --type-milestone: #2f7a6f;
+  --type-routine: #6b8e63;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a1a18;
+    --surface: #222220;
+    --surface-raised: #28271f;
+    --ink: #ece7dc;
+    --ink-muted: #a39c8e;
+    --ink-faint: #726c62;
+    --border: #37352c;
+    --border-strong: #47443a;
+
+    --accent: #8bab93;
+    --accent-foreground: #1a1a18;
+    --accent-hover: #a3c0aa;
+
+    --type-task: #85a4c7;
+    --type-deadline: #d38470;
+    --type-meeting: #b09cd1;
+    --type-conference: #d9ad55;
+    --type-paper: #cd8ab8;
+    --type-milestone: #5fac9d;
+    --type-routine: #93ba89;
+  }
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+
+  --color-type-task: var(--type-task);
+  --color-type-deadline: var(--type-deadline);
+  --color-type-meeting: var(--type-meeting);
+  --color-type-conference: var(--type-conference);
+  --color-type-paper: var(--type-paper);
+  --color-type-milestone: var(--type-milestone);
+  --color-type-routine: var(--type-routine);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 30%, transparent);
+}
+
+/* Quiet, deliberate focus ring instead of the default blue */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Slim, unobtrusive scrollbars that still fit the calm aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
