@@ -3,6 +3,7 @@ import { TodayChecklist } from "@/components/dashboard/today-checklist";
 import { NextActionCard } from "@/components/dashboard/next-action-card";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
 import { ProgressPulse } from "@/components/dashboard/progress-pulse";
+import { DailyPickCard } from "@/components/learnings/daily-pick-card";
 
 export default function TodayPage() {
   return (
@@ -17,6 +18,10 @@ export default function TodayPage() {
           <NextActionCard />
           <UpcomingDeadlines />
         </div>
+      </div>
+      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <DailyPickCard kind="paper" />
+        <DailyPickCard kind="video" />
       </div>
     </div>
   );

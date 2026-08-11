@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-export const PROJECT_COLORS = [
+export const ACCENT_COLORS = [
   "var(--color-type-task)",
   "var(--color-type-deadline)",
   "var(--color-type-meeting)",
@@ -22,7 +22,7 @@ export function ColorSwatchPicker({
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {PROJECT_COLORS.map((color) => (
+      {ACCENT_COLORS.map((color) => (
         <button
           key={color}
           type="button"

@@ -7,7 +7,7 @@ import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { ColorSwatchPicker, PROJECT_COLORS } from "./color-swatch-picker";
+import { ColorSwatchPicker, ACCENT_COLORS } from "@/components/ui/color-swatch-picker";
 import { addProject } from "@/lib/db/projects";
 import { PROJECT_STATUSES, PRIORITIES } from "@/lib/db/types";
 import { PROJECT_STATUS_LABELS, PRIORITY_LABELS } from "@/lib/constants";
@@ -18,7 +18,7 @@ export function NewProjectDialog() {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<(typeof PROJECT_STATUSES)[number]>("idea");
   const [priority, setPriority] = useState<(typeof PRIORITIES)[number]>("medium");
-  const [color, setColor] = useState(PROJECT_COLORS[0]);
+  const [color, setColor] = useState(ACCENT_COLORS[0]);
   const [nextAction, setNextAction] = useState("");
 
   async function handleCreate() {
