@@ -5,7 +5,8 @@ import { format } from "date-fns";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { ProjectChipSelect } from "@/components/projects/project-chip-select";
+import { ProjectColorPopover } from "@/components/projects/project-color-popover";
 import { fromDateStamp, todayStamp } from "@/lib/dates";
 import { useProgressEntries, addProgressEntry } from "@/lib/db/progress-entries";
 import { useActiveProjects } from "@/lib/db/projects";
@@ -45,10 +46,26 @@ export default function ProgressPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="mb-8">
-        <p className="text-sm text-ink-faint">What you actually got done</p>
-        <h1 className="font-display text-3xl text-ink">Progress</h1>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm text-ink-faint">What you actually got done</p>
+          <h1 className="font-display text-3xl text-ink">Progress</h1>
+        </div>
+        <ProjectColorPopover />
       </div>
+
+      {projects !== undefined && projects.length > 0 && (
+        <div className="mb-4">
+          <p className="mb-1.5 text-xs text-ink-faint">
+            Tag this entry to a project (tap again to clear):
+          </p>
+          <ProjectChipSelect
+            projects={projects}
+            selectedId={projectId}
+            onSelect={setProjectId}
+          />
+        </div>
+      )}
 
       <form
         className="mb-8 flex items-center gap-2 rounded-2xl border border-border bg-surface p-3"
@@ -70,20 +87,6 @@ export default function ProgressPage() {
           placeholder="Implemented baseline model, found why experiment 3 was failing…"
           className="border-none bg-transparent px-0 focus:border-none"
         />
-        {projects !== undefined && projects.length > 0 && (
-          <Select
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            className="w-auto shrink-0 py-1.5 pr-7 text-xs"
-          >
-            <option value="">No project</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title}
-              </option>
-            ))}
-          </Select>
-        )}
       </form>
 
       {entries === undefined ? (
@@ -101,30 +104,28 @@ export default function ProgressPage() {
               <h2 className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
                 {week}
               </h2>
-              <ul className="flex flex-col gap-1">
+              <ul className="flex flex-col gap-1.5">
                 {weekEntries.map((entry) => {
                   const project = projects?.find((p) => p.id === entry.projectId);
                   return (
                     <li
                       key={entry.id}
-                      className="flex items-start gap-3 rounded-lg px-2 py-1.5 hover:bg-ink/[0.03]"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2"
+                      style={{
+                        backgroundColor: project
+                          ? `color-mix(in oklab, ${project.color} 12%, transparent)`
+                          : undefined,
+                      }}
                     >
-                      <span
-                        className="mt-1.5 size-1.5 shrink-0 rounded-full"
-                        style={{
-                          backgroundColor: project ? project.color : "var(--color-type-milestone)",
-                        }}
-                      />
-                      <span className="flex-1 text-sm text-ink">{entry.text}</span>
                       {project && (
                         <span
-                          className="shrink-0 rounded-full px-2 py-0.5 text-[11px] text-ink-muted"
-                          style={{
-                            backgroundColor: `color-mix(in oklab, ${project.color} 14%, transparent)`,
-                          }}
-                        >
-                          {project.title}
-                        </span>
+                          className="size-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: project.color }}
+                        />
+                      )}
+                      <span className="flex-1 text-sm text-ink">{entry.text}</span>
+                      {project && (
+                        <span className="shrink-0 text-xs text-ink-muted">{project.title}</span>
                       )}
                       <span className="shrink-0 text-xs text-ink-faint">
                         {format(fromDateStamp(entry.date), "EEE")}
