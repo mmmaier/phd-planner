@@ -1,15 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
+import { Inbox } from "lucide-react";
+import { toast } from "sonner";
 import { useUiStore } from "@/store/ui-store";
 import { allNavItems } from "./nav-items";
+import { addInboxItem } from "@/lib/db/inbox";
 
 export function CommandPalette() {
   const open = useUiStore((s) => s.commandPaletteOpen);
   const setOpen = useUiStore((s) => s.setCommandPaletteOpen);
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  // Clear the search when the palette closes — done during render (per
+  // React's guidance) rather than in an effect, to avoid an extra render.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (!open) setSearch("");
+  }
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -27,6 +39,22 @@ export function CommandPalette() {
 
   if (!open) return null;
 
+  const matchingNavItems = allNavItems.filter((item) =>
+    item.label.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  async function handleCaptureToInbox() {
+    const content = search.trim();
+    if (!content) return;
+    await addInboxItem({
+      content,
+      guessedType: /^https?:\/\//i.test(content) ? "url" : "other",
+      processed: false,
+    });
+    toast.success("Added to inbox");
+    setOpen(false);
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-ink/20 px-4 pt-[15vh] backdrop-blur-[2px]"
@@ -36,36 +64,53 @@ export function CommandPalette() {
         label="Command palette"
         className="w-full max-w-lg overflow-hidden rounded-xl border border-border bg-surface-raised shadow-2xl"
         onClick={(e) => e.stopPropagation()}
-        shouldFilter
+        shouldFilter={false}
       >
         <Command.Input
           autoFocus
-          placeholder="Jump to…"
+          value={search}
+          onValueChange={setSearch}
+          placeholder="Jump to… or type to capture something for later"
           className="w-full border-b border-border bg-transparent px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint"
         />
         <Command.List className="max-h-80 overflow-y-auto p-2">
-          <Command.Empty className="px-3 py-6 text-center text-sm text-ink-faint">
-            No matches.
-          </Command.Empty>
-          <Command.Group
-            heading="Go to"
-            className="text-[11px] font-medium uppercase tracking-wide text-ink-faint [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-2"
-          >
-            {allNavItems.map((item) => (
+          {matchingNavItems.length > 0 && (
+            <Command.Group
+              heading="Go to"
+              className="text-[11px] font-medium uppercase tracking-wide text-ink-faint [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-2"
+            >
+              {matchingNavItems.map((item) => (
+                <Command.Item
+                  key={item.href}
+                  value={item.href}
+                  onSelect={() => {
+                    router.push(item.href);
+                    setOpen(false);
+                  }}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink data-[selected=true]:bg-accent/10 data-[selected=true]:text-accent-hover"
+                >
+                  <item.icon className="size-4 text-ink-faint" strokeWidth={1.75} />
+                  {item.label}
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
+
+          {search.trim().length > 0 && (
+            <Command.Group
+              heading="Capture"
+              className="text-[11px] font-medium uppercase tracking-wide text-ink-faint [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-2"
+            >
               <Command.Item
-                key={item.href}
-                value={item.label}
-                onSelect={() => {
-                  router.push(item.href);
-                  setOpen(false);
-                }}
+                value="capture-to-inbox"
+                onSelect={handleCaptureToInbox}
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink data-[selected=true]:bg-accent/10 data-[selected=true]:text-accent-hover"
               >
-                <item.icon className="size-4 text-ink-faint" strokeWidth={1.75} />
-                {item.label}
+                <Inbox className="size-4 text-ink-faint" strokeWidth={1.75} />
+                Add &ldquo;{search.trim()}&rdquo; to inbox
               </Command.Item>
-            ))}
-          </Command.Group>
+            </Command.Group>
+          )}
         </Command.List>
       </Command>
     </div>

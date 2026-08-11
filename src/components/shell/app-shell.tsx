@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { MobileNav } from "./mobile-nav";
 import { CommandPalette } from "./command-palette";
+import { PageTransition } from "./page-transition";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -9,7 +10,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <MobileNav />
-        <main className="flex-1 px-4 py-6 md:px-10 md:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 md:px-10 md:py-8">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
       <CommandPalette />
     </div>
