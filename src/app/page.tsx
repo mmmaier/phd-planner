@@ -4,6 +4,7 @@ import { NextActionCard } from "@/components/dashboard/next-action-card";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
 import { ProgressPulse } from "@/components/dashboard/progress-pulse";
 import { DailyPickCard } from "@/components/learnings/daily-pick-card";
+import { NextMeetingNote } from "@/components/dashboard/next-meeting-note";
 
 export default function TodayPage() {
   return (
@@ -16,6 +17,7 @@ export default function TodayPage() {
         </div>
         <div className="flex flex-col gap-6">
           <NextActionCard />
+          <NextMeetingNote />
           <UpcomingDeadlines />
         </div>
       </div>

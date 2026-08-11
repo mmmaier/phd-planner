@@ -51,6 +51,16 @@ export function useTasksForProject(projectId: string | undefined) {
   );
 }
 
+export function useTasksCompletedInRange(startMs: number, endMs: number) {
+  return useLiveQuery(
+    () =>
+      db.tasks
+        .filter((t) => t.completed && !!t.completedAt && t.completedAt >= startMs && t.completedAt <= endMs)
+        .toArray(),
+    [startMs, endMs],
+  );
+}
+
 export function useUpcomingTasks(fromDate: DateStamp, limit = 10) {
   return useLiveQuery(
     () =>

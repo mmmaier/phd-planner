@@ -41,6 +41,16 @@ export function useResourcesByStatus(status: Resource["status"]) {
   );
 }
 
+export function useResourcesCompletedInRange(start: string, end: string) {
+  return useLiveQuery(
+    () =>
+      db.resources
+        .filter((r) => !!r.dateCompleted && r.dateCompleted >= start && r.dateCompleted <= end)
+        .toArray(),
+    [start, end],
+  );
+}
+
 export function useResource(id: string | undefined) {
   return useLiveQuery(() => (id ? db.resources.get(id) : undefined), [id]);
 }
