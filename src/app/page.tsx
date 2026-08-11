@@ -1,10 +1,23 @@
-import { PagePlaceholder } from "@/components/ui/page-placeholder";
+import { TodayHeader } from "@/components/dashboard/today-header";
+import { TodayChecklist } from "@/components/dashboard/today-checklist";
+import { NextActionCard } from "@/components/dashboard/next-action-card";
+import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
+import { ProgressPulse } from "@/components/dashboard/progress-pulse";
 
 export default function TodayPage() {
   return (
-    <PagePlaceholder
-      title="Today"
-      description="Your dashboard is coming together — today's checks, next actions, and daily picks will land here in phase 3."
-    />
+    <div className="mx-auto max-w-5xl">
+      <TodayHeader />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
+        <div className="flex flex-col gap-6">
+          <TodayChecklist />
+          <ProgressPulse />
+        </div>
+        <div className="flex flex-col gap-6">
+          <NextActionCard />
+          <UpcomingDeadlines />
+        </div>
+      </div>
+    </div>
   );
 }
