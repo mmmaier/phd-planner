@@ -2,13 +2,19 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { EditableText } from "@/components/ui/editable-text";
 import { ProjectChipSelect } from "@/components/projects/project-chip-select";
 import { ProjectColorPopover } from "@/components/projects/project-color-popover";
 import { fromDateStamp, todayStamp } from "@/lib/dates";
-import { useProgressEntries, addProgressEntry } from "@/lib/db/progress-entries";
+import {
+  useProgressEntries,
+  addProgressEntry,
+  updateProgressEntry,
+  deleteProgressEntry,
+} from "@/lib/db/progress-entries";
 import { useActiveProjects } from "@/lib/db/projects";
 import type { ProgressEntry } from "@/lib/db/types";
 
@@ -110,7 +116,7 @@ export default function ProgressPage() {
                   return (
                     <li
                       key={entry.id}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2"
+                      className="group flex items-center gap-3 rounded-xl px-3 py-2"
                       style={{
                         backgroundColor: project
                           ? `color-mix(in oklab, ${project.color} 12%, transparent)`
@@ -123,13 +129,25 @@ export default function ProgressPage() {
                           style={{ backgroundColor: project.color }}
                         />
                       )}
-                      <span className="flex-1 text-sm text-ink">{entry.text}</span>
+                      <EditableText
+                        value={entry.text}
+                        onSave={(text) => updateProgressEntry(entry.id, { text })}
+                        className="flex-1 text-sm"
+                      />
                       {project && (
                         <span className="shrink-0 text-xs text-ink-muted">{project.title}</span>
                       )}
                       <span className="shrink-0 text-xs text-ink-faint">
                         {format(fromDateStamp(entry.date), "EEE")}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => deleteProgressEntry(entry.id)}
+                        aria-label="Delete entry"
+                        className="shrink-0 rounded p-1 text-ink-faint opacity-0 transition-opacity hover:text-ink group-hover:opacity-100"
+                      >
+                        <X className="size-3.5" />
+                      </button>
                     </li>
                   );
                 })}

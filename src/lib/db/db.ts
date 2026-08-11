@@ -67,6 +67,19 @@ export class PhdPlannerDB extends Dexie {
 
 export const db = new PhdPlannerDB();
 
+// If another tab opens with a newer schema version, IndexedDB requires this
+// connection to close before that upgrade can proceed — Dexie does that
+// automatically, but silently, which left a previous session's tab stuck
+// with a dead connection (every query/write in that tab just failed).
+// Reloading is the standard Dexie-recommended fix: it reconnects at the new
+// version instead of leaving the tab in a broken state.
+if (typeof window !== "undefined") {
+  db.on("versionchange", () => {
+    db.close();
+    window.location.reload();
+  });
+}
+
 export const DEFAULT_SETTINGS: AppSettings = {
   id: "settings",
   shortWatchThresholdMinutes: 15,
