@@ -34,6 +34,13 @@ export function useTasksForDate(date: DateStamp | undefined) {
   );
 }
 
+export function useTasksInRange(start: DateStamp, end: DateStamp) {
+  return useLiveQuery(
+    () => db.tasks.where("date").between(start, end, true, true).toArray(),
+    [start, end],
+  );
+}
+
 export function useTasksForProject(projectId: string | undefined) {
   return useLiveQuery(
     () =>
