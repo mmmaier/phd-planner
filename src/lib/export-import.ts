@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { db } from "./db/db";
+import { getBackupFileHandle, setBackupFileHandle, clearBackupFileHandle } from "./db/file-handles";
 import {
   PROJECT_STATUSES,
   PRIORITIES,
@@ -254,6 +255,59 @@ export function downloadExport(payload: ExportPayload) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+export const BACKUP_SUGGESTED_NAME = "phd-planner-backup.json";
+export const supportsFileSystemAccess =
+  typeof window !== "undefined" && "showSaveFilePicker" in window;
+
+async function hasWritePermission(handle: FileSystemFileHandle): Promise<boolean> {
+  const opts = { mode: "readwrite" as const };
+  if ((await handle.queryPermission(opts)) === "granted") return true;
+  return (await handle.requestPermission(opts)) === "granted";
+}
+
+export type ExportResult =
+  | { destination: "picked-file"; fileName: string }
+  | { destination: "download" }
+  | { destination: "cancelled" };
+
+// Writes to the previously-picked local file directly, overwriting it — no
+// dialog, no new dated copy. The first call (or any call after the handle
+// stops working, e.g. the file was moved) prompts the native save dialog and
+// remembers the choice via lib/db/file-handles.ts for next time. Browsers
+// without the File System Access API (Firefox, Safari) fall back to a plain
+// download, since there's no way to get a reusable, writable file reference
+// there.
+export async function exportToFile(payload: ExportPayload): Promise<ExportResult> {
+  if (!supportsFileSystemAccess) {
+    downloadExport(payload);
+    return { destination: "download" };
+  }
+
+  const remembered = await getBackupFileHandle();
+  let handle = remembered && (await hasWritePermission(remembered)) ? remembered : undefined;
+
+  if (!handle) {
+    try {
+      handle = await window.showSaveFilePicker!({
+        suggestedName: BACKUP_SUGGESTED_NAME,
+        types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+        startIn: remembered ?? "documents",
+      });
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return { destination: "cancelled" };
+      throw err;
+    }
+    await setBackupFileHandle(handle);
+  }
+
+  const writable = await handle.createWritable();
+  await writable.write(JSON.stringify(payload, null, 2));
+  await writable.close();
+  return { destination: "picked-file", fileName: handle.name };
+}
+
+export { clearBackupFileHandle };
 
 export type ImportResult =
   | { ok: true }

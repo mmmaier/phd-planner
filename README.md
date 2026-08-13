@@ -16,6 +16,12 @@ to a single JSON file, or import a backup to restore it (which replaces whatever
 there). There's also a one-click "reset" if you want to start over, and a "load sample data"
 button if you just want to explore the app with fictional example content first.
 
+In Chrome/Edge, the first export lets you pick where to save the backup file — e.g. right inside
+this repo's folder — and every export after that silently overwrites that same file (via the File
+System Access API) instead of downloading a new dated copy each time. `phd-planner-backup.json`
+is already in `.gitignore`, since it's your real data and should never be committed. Firefox/Safari
+don't support that API, so there it just downloads a fresh file each time instead.
+
 ## Getting started
 
 Requires Node.js 20+.

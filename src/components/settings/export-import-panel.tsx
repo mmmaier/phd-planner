@@ -1,20 +1,34 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, Upload, TriangleAlert } from "lucide-react";
+import { Download, Upload, TriangleAlert, FileCog, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { exportAllData, downloadExport, importAllData, resetAllData } from "@/lib/export-import";
+import {
+  exportAllData,
+  exportToFile,
+  importAllData,
+  resetAllData,
+  clearBackupFileHandle,
+  supportsFileSystemAccess,
+} from "@/lib/export-import";
+import { useBackupFileHandleName } from "@/lib/db/file-handles";
 
 export function ExportImportPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmingImport, setConfirmingImport] = useState<File | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
+  const backupFileName = useBackupFileHandleName();
 
   async function handleExport() {
     const payload = await exportAllData();
-    downloadExport(payload);
-    toast.success("Backup downloaded");
+    const result = await exportToFile(payload);
+    if (result.destination === "picked-file") {
+      toast.success(`Backup saved to "${result.fileName}"`);
+    } else if (result.destination === "download") {
+      toast.success("Backup downloaded");
+    }
+    // "cancelled" (user closed the save dialog) — no toast needed.
   }
 
   async function handleImportFile(file: File) {
@@ -46,13 +60,36 @@ export function ExportImportPanel() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-sm text-ink">Export all data</p>
-          <p className="text-xs text-ink-faint">Download everything as a JSON backup file.</p>
+          <p className="text-xs text-ink-faint">
+            {supportsFileSystemAccess
+              ? backupFileName
+                ? `Overwrites "${backupFileName}" — wherever you saved it.`
+                : "First export lets you pick where to save it; every export after that overwrites the same file."
+              : "Downloads a JSON backup file. Your browser doesn't support overwriting a chosen file directly, so each export is a new download."}
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleExport}>
           <Download className="size-3.5" strokeWidth={1.75} />
           Export
         </Button>
       </div>
+      {backupFileName && (
+        <div className="-mt-3 flex items-center gap-2 pl-0 text-xs text-ink-faint">
+          <FileCog className="size-3.5 shrink-0" strokeWidth={1.75} />
+          <span className="flex-1">Backing up to &ldquo;{backupFileName}&rdquo;</span>
+          <button
+            type="button"
+            onClick={async () => {
+              await clearBackupFileHandle();
+              toast.success("Forgot backup location — next export will ask again");
+            }}
+            className="flex items-center gap-1 rounded p-1 text-ink-faint hover:text-ink"
+          >
+            <X className="size-3" />
+            Change
+          </button>
+        </div>
+      )}
 
       <div className="flex items-center justify-between gap-4">
         <div>

@@ -31,6 +31,11 @@ export class PhdPlannerDB extends Dexie {
   researchQuestions!: EntityTable<ResearchQuestion, "id">;
   inboxItems!: EntityTable<InboxItem, "id">;
   appSettings!: EntityTable<AppSettings, "id">;
+  // Not domain data — holds the FileSystemFileHandle for the backup file the
+  // user picked, so repeat exports can overwrite it directly. Deliberately
+  // outside the versioned export/import schema (a handle isn't portable
+  // data, it's a browser/session-local reference).
+  fileHandles!: EntityTable<{ id: string; handle: FileSystemFileHandle }, "id">;
 
   constructor() {
     super("phd-planner");
@@ -61,6 +66,12 @@ export class PhdPlannerDB extends Dexie {
     // here so existing local databases get upgraded, not just fresh ones.
     this.version(2).stores({
       researchQuestions: "id, projectId, status, updatedAt",
+    });
+
+    // v3: remembers the on-disk backup file handle so exports can overwrite
+    // it directly instead of downloading a new dated file every time.
+    this.version(3).stores({
+      fileHandles: "id",
     });
   }
 }
