@@ -41,6 +41,23 @@ export function useTasksInRange(start: DateStamp, end: DateStamp) {
   );
 }
 
+// `deadline` isn't indexed (same reasoning as the boolean fields — it's
+// nullable and only a handful of tasks will ever have one set), so this
+// filters in memory rather than using a Dexie `.where()`.
+export function useTasksWithDeadlineInRange(start: DateStamp, end: DateStamp) {
+  return useLiveQuery(
+    () =>
+      db.tasks
+        .filter((t) => !!t.deadline && t.deadline >= start && t.deadline <= end)
+        .toArray(),
+    [start, end],
+  );
+}
+
+export function useAllTasks() {
+  return useLiveQuery(() => db.tasks.toArray(), []);
+}
+
 export function useTasksForProject(projectId: string | undefined) {
   return useLiveQuery(
     () =>

@@ -1,9 +1,9 @@
 # PhD Planner
 
 A calm, local-first research operating system for planning a PhD: a big calendar, daily checks,
-project tracking, a research library with a daily paper/video pick, a progress log, supervisor
-meeting notes, research questions, and a quick-capture inbox — all in one place, all on your own
-machine.
+a general to-do list with deadlines, project tracking, a research library with a daily paper/video
+pick, meeting notes organized by person, and a quick-capture inbox — all in one place, all on your
+own machine.
 
 ## Local-first, by design
 

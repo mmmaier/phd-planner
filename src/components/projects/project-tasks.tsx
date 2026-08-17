@@ -23,6 +23,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     await addTask({
       title: trimmed,
       date: null,
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId,

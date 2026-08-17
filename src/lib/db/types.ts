@@ -73,6 +73,7 @@ export type Milestone = WithMeta & {
 export type Task = WithMeta & {
   title: string;
   date: DateStamp | null;
+  deadline: DateStamp | null; // shown on the calendar in the deadline color
   completed: boolean;
   completedAt: Timestamp | null;
   projectId: Id | null;
@@ -168,6 +169,14 @@ export type ProgressEntry = WithMeta & {
   projectId: Id | null;
 };
 
+// People ----------------------------------------------------------------
+
+export type Person = WithMeta & {
+  name: string;
+  role: string; // free text, e.g. "Supervisor", "Collaborator"
+  notes: string;
+};
+
 // Supervisor meetings ----------------------------------------------------------------
 
 export type ActionItem = {
@@ -179,6 +188,7 @@ export type ActionItem = {
 
 export type SupervisorMeeting = WithMeta & {
   date: DateStamp;
+  personId: Id | null;
   agenda: string;
   discussionNotes: string;
   decisions: string;

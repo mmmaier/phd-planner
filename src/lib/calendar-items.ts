@@ -1,4 +1,4 @@
-import { useTasksInRange } from "@/lib/db/tasks";
+import { useTasksInRange, useTasksWithDeadlineInRange } from "@/lib/db/tasks";
 import { useCalendarEventsInRange } from "@/lib/db/calendar-events";
 import { useMilestonesInRange } from "@/lib/db/milestones";
 import { CALENDAR_ITEM_COLOR, type CalendarItemKind } from "@/lib/constants";
@@ -15,10 +15,15 @@ export type CalendarItem = {
 
 export function useCalendarItemsInRange(start: DateStamp, end: DateStamp) {
   const tasks = useTasksInRange(start, end);
+  const deadlineTasks = useTasksWithDeadlineInRange(start, end);
   const events = useCalendarEventsInRange(start, end);
   const milestones = useMilestonesInRange(start, end);
 
-  const loading = tasks === undefined || events === undefined || milestones === undefined;
+  const loading =
+    tasks === undefined ||
+    deadlineTasks === undefined ||
+    events === undefined ||
+    milestones === undefined;
   if (loading) return { items: undefined, loading: true as const };
 
   const items: CalendarItem[] = [
@@ -32,6 +37,14 @@ export function useCalendarItemsInRange(start: DateStamp, end: DateStamp) {
         color: CALENDAR_ITEM_COLOR.task,
         completed: t.completed,
       })),
+    ...deadlineTasks!.map((t) => ({
+      id: `${t.id}-deadline`,
+      kind: "deadline" as const,
+      title: t.title,
+      date: t.deadline as DateStamp,
+      color: CALENDAR_ITEM_COLOR.deadline,
+      completed: t.completed,
+    })),
     ...events!.map((e) => ({
       id: e.id,
       kind: e.type,

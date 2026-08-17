@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Panel, PanelHeading } from "@/components/ui/panel";
 import { getWeekDays, toDateStamp } from "@/lib/dates";
 import { useTasksCompletedInRange, useTasksInRange } from "@/lib/db/tasks";
-import { useProgressEntriesInRange } from "@/lib/db/progress-entries";
 import { useResourcesCompletedInRange } from "@/lib/db/resources";
 import { useRoutineCompletionsInRange } from "@/lib/db/routines";
 import { useCalendarItemsInRange } from "@/lib/calendar-items";
@@ -27,7 +26,6 @@ export default function ReviewPage() {
 
   const completedTasks = useTasksCompletedInRange(startMs, endMs);
   const weekTasks = useTasksInRange(start, end);
-  const progressEntries = useProgressEntriesInRange(start, end);
   const completedResources = useResourcesCompletedInRange(start, end);
   const routineCompletions = useRoutineCompletionsInRange(start, end);
   const { items: nextWeekItems } = useCalendarItemsInRange(nextStart, nextEnd);
@@ -90,21 +88,6 @@ export default function ReviewPage() {
               {completedTasks.map((t) => (
                 <li key={t.id} className="text-sm text-ink-muted">
                   {t.title}
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel>
-          <PanelHeading>Progress logged</PanelHeading>
-          {progressEntries === undefined || progressEntries.length === 0 ? (
-            <p className="text-sm text-ink-faint">Nothing logged this week.</p>
-          ) : (
-            <ul className="flex flex-col gap-1.5">
-              {progressEntries.map((entry) => (
-                <li key={entry.id} className="text-sm text-ink-muted">
-                  {entry.text}
                 </li>
               ))}
             </ul>

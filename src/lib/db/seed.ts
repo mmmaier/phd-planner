@@ -13,9 +13,8 @@ import type {
   Routine,
   Resource,
   Topic,
-  ProgressEntry,
   SupervisorMeeting,
-  ResearchQuestion,
+  Person,
   InboxItem,
 } from "./types";
 
@@ -240,6 +239,7 @@ export async function seedDemoData() {
       id: newId(),
       title: "Fix imaging encoder normalization bug",
       date: d(0),
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId: projDiagnosis.id,
@@ -251,6 +251,7 @@ export async function seedDemoData() {
       id: newId(),
       title: "Draft related-work paragraph on subgroup fairness",
       date: d(0),
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId: projFailureModes.id,
@@ -262,6 +263,7 @@ export async function seedDemoData() {
       id: newId(),
       title: "Reply to reviewer questions from lab meeting",
       date: d(1),
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId: null,
@@ -273,6 +275,7 @@ export async function seedDemoData() {
       id: newId(),
       title: "Sketch first experiment for calibration idea",
       date: d(3),
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId: projCalibration.id,
@@ -284,9 +287,36 @@ export async function seedDemoData() {
       id: newId(),
       title: "Clean up preprocessing scripts",
       date: d(-1),
+      deadline: null,
       completed: true,
       completedAt: subDays(new Date(), 1).getTime(),
       projectId: projDiagnosis.id,
+      priority: "low",
+      notes: "",
+      ...meta(),
+    },
+    // General to-dos — not scheduled for a specific day, but with a deadline
+    // that shows up on the calendar in the deadline color.
+    {
+      id: newId(),
+      title: "Renew data storage ethics approval",
+      date: null,
+      deadline: d(10),
+      completed: false,
+      completedAt: null,
+      projectId: projDiagnosis.id,
+      priority: "medium",
+      notes: "",
+      ...meta(),
+    },
+    {
+      id: newId(),
+      title: "Book flights for MedAI Symposium",
+      date: null,
+      deadline: d(50),
+      completed: false,
+      completedAt: null,
+      projectId: null,
       priority: "low",
       notes: "",
       ...meta(),
@@ -371,41 +401,22 @@ export async function seedDemoData() {
     },
   ];
 
-  const progressEntries: ProgressEntry[] = [
+  const people: Person[] = [
     {
       id: newId(),
-      text: "Implemented baseline fusion model for imaging + notes.",
-      date: d(-6),
-      projectId: projDiagnosis.id,
-      ...meta(),
-    },
-    {
-      id: newId(),
-      text: "Finished first full draft of introduction.",
-      date: d(-4),
-      projectId: projFailureModes.id,
-      ...meta(),
-    },
-    {
-      id: newId(),
-      text: "Found why experiment 3 was failing — mismatched tokenizer.",
-      date: d(-2),
-      projectId: projDiagnosis.id,
-      ...meta(),
-    },
-    {
-      id: newId(),
-      text: "Read subgroup evaluation article, added notes to related work.",
-      date: d(-1),
-      projectId: projFailureModes.id,
+      name: "Dr. Amara Ellison",
+      role: "Supervisor",
+      notes: "",
       ...meta(),
     },
   ];
+  const [supervisor] = people;
 
   const supervisorMeetings: SupervisorMeeting[] = [
     {
       id: newId(),
       date: d(-5),
+      personId: supervisor.id,
       agenda: "Review fusion model results, discuss ethics amendment.",
       discussionNotes:
         "Results look promising on the held-out set. Supervisor suggested trying an ablation without the imaging branch.",
@@ -415,25 +426,6 @@ export async function seedDemoData() {
         { id: newId(), text: "Draft ethics amendment for extended dataset", done: false, taskId: null },
       ],
       questionsForNextTime: "Is the workshop track still the right target, or should we aim higher?",
-      ...meta(),
-    },
-  ];
-
-  const researchQuestions: ResearchQuestion[] = [
-    {
-      id: newId(),
-      question: "Why does the diagnosis model fail more often on the pediatric subgroup?",
-      projectId: projDiagnosis.id,
-      status: "open",
-      notes: "",
-      ...meta(),
-    },
-    {
-      id: newId(),
-      question: "Would a clinically-motivated evaluation framework change our model ranking?",
-      projectId: projFailureModes.id,
-      status: "open",
-      notes: "",
       ...meta(),
     },
   ];
@@ -465,9 +457,8 @@ export async function seedDemoData() {
       db.tasks,
       db.calendarEvents,
       db.routines,
-      db.progressEntries,
+      db.people,
       db.supervisorMeetings,
-      db.researchQuestions,
       db.inboxItems,
     ],
     async () => {
@@ -478,9 +469,8 @@ export async function seedDemoData() {
       await db.tasks.bulkAdd(tasks);
       await db.calendarEvents.bulkAdd(calendarEvents);
       await db.routines.bulkAdd(routines);
-      await db.progressEntries.bulkAdd(progressEntries);
+      await db.people.bulkAdd(people);
       await db.supervisorMeetings.bulkAdd(supervisorMeetings);
-      await db.researchQuestions.bulkAdd(researchQuestions);
       await db.inboxItems.bulkAdd(inboxItems);
     },
   );

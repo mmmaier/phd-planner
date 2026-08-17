@@ -59,6 +59,7 @@ export function DailyChecklist({ date }: { date: DateStamp }) {
     await addTask({
       title,
       date,
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId: null,

@@ -43,6 +43,7 @@ const taskSchema = z.object({
   ...withMeta,
   title: z.string(),
   date: z.string().nullable(),
+  deadline: z.string().nullable().default(null),
   completed: z.boolean(),
   completedAt: z.number().nullable(),
   projectId: z.string().nullable(),
@@ -119,9 +120,17 @@ const actionItemSchema = z.object({
   taskId: z.string().nullable(),
 });
 
+const personSchema = z.object({
+  ...withMeta,
+  name: z.string(),
+  role: z.string(),
+  notes: z.string(),
+});
+
 const supervisorMeetingSchema = z.object({
   ...withMeta,
   date: z.string(),
+  personId: z.string().nullable().default(null),
   agenda: z.string(),
   discussionNotes: z.string(),
   decisions: z.string(),
@@ -167,6 +176,7 @@ export const exportSchema = z.object({
     progressEntries: z.array(progressEntrySchema),
     supervisorMeetings: z.array(supervisorMeetingSchema),
     researchQuestions: z.array(researchQuestionSchema),
+    people: z.array(personSchema).default([]),
     inboxItems: z.array(inboxItemSchema),
     appSettings: z.array(appSettingsSchema),
   }),
@@ -187,6 +197,7 @@ const ALL_TABLES = [
   db.progressEntries,
   db.supervisorMeetings,
   db.researchQuestions,
+  db.people,
   db.inboxItems,
   db.appSettings,
 ];
@@ -205,6 +216,7 @@ export async function exportAllData(): Promise<ExportPayload> {
     progressEntries,
     supervisorMeetings,
     researchQuestions,
+    people,
     inboxItems,
     appSettings,
   ] = await Promise.all([
@@ -220,6 +232,7 @@ export async function exportAllData(): Promise<ExportPayload> {
     db.progressEntries.toArray(),
     db.supervisorMeetings.toArray(),
     db.researchQuestions.toArray(),
+    db.people.toArray(),
     db.inboxItems.toArray(),
     db.appSettings.toArray(),
   ]);
@@ -240,6 +253,7 @@ export async function exportAllData(): Promise<ExportPayload> {
       progressEntries,
       supervisorMeetings,
       researchQuestions,
+      people,
       inboxItems,
       appSettings,
     },
@@ -336,6 +350,7 @@ export async function importAllData(raw: unknown): Promise<ImportResult> {
       db.progressEntries.bulkAdd(data.progressEntries),
       db.supervisorMeetings.bulkAdd(data.supervisorMeetings),
       db.researchQuestions.bulkAdd(data.researchQuestions),
+      db.people.bulkAdd(data.people),
       db.inboxItems.bulkAdd(data.inboxItems),
       db.appSettings.bulkAdd(data.appSettings),
     ]);

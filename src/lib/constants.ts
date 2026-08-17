@@ -5,7 +5,6 @@ import type {
   CalendarEventType,
   ResourceType,
   ResourceStatus,
-  ResearchQuestionStatus,
   InboxItemType,
 } from "./db/types";
 
@@ -75,11 +74,6 @@ export const RESOURCE_STATUS_LABELS: Record<ResourceStatus, string> = {
   unread: "Unread",
   in_progress: "In progress",
   completed: "Completed",
-};
-
-export const RESEARCH_QUESTION_STATUS_LABELS: Record<ResearchQuestionStatus, string> = {
-  open: "Open",
-  resolved: "Resolved",
 };
 
 export const INBOX_ITEM_TYPE_LABELS: Record<InboxItemType, string> = {

@@ -12,6 +12,7 @@ import type {
   ProgressEntry,
   SupervisorMeeting,
   ResearchQuestion,
+  Person,
   InboxItem,
   AppSettings,
 } from "./types";
@@ -29,6 +30,7 @@ export class PhdPlannerDB extends Dexie {
   progressEntries!: EntityTable<ProgressEntry, "id">;
   supervisorMeetings!: EntityTable<SupervisorMeeting, "id">;
   researchQuestions!: EntityTable<ResearchQuestion, "id">;
+  people!: EntityTable<Person, "id">;
   inboxItems!: EntityTable<InboxItem, "id">;
   appSettings!: EntityTable<AppSettings, "id">;
   // Not domain data — holds the FileSystemFileHandle for the backup file the
@@ -73,6 +75,30 @@ export class PhdPlannerDB extends Dexie {
     this.version(3).stores({
       fileHandles: "id",
     });
+
+    // v4: People (meeting notes are now grouped by person) — a new store,
+    // which does require a version bump. Task.deadline and
+    // SupervisorMeeting.personId are new plain (unindexed) fields, which
+    // don't need one, but existing rows won't have them yet, so backfill
+    // both to explicit null instead of leaving them undefined.
+    this.version(4)
+      .stores({
+        people: "id, name",
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table("tasks")
+          .toCollection()
+          .modify((t) => {
+            if (t.deadline === undefined) t.deadline = null;
+          });
+        await tx
+          .table("supervisorMeetings")
+          .toCollection()
+          .modify((m) => {
+            if (m.personId === undefined) m.personId = null;
+          });
+      });
   }
 }
 

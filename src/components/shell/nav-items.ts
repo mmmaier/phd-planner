@@ -3,9 +3,8 @@ import {
   CalendarDays,
   FlaskConical,
   BookMarked,
-  TrendingUp,
+  ListTodo,
   Users,
-  HelpCircle,
   Inbox,
   ScrollText,
   Settings,
@@ -20,15 +19,14 @@ export type NavItem = {
 
 export const primaryNavItems: NavItem[] = [
   { href: "/", label: "Today", icon: Home },
+  { href: "/todos", label: "To Dos", icon: ListTodo },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/projects", label: "Projects", icon: FlaskConical },
   { href: "/learnings", label: "Learnings", icon: BookMarked },
 ];
 
 export const secondaryNavItems: NavItem[] = [
-  { href: "/progress", label: "Progress", icon: TrendingUp },
-  { href: "/meetings", label: "Meetings", icon: Users },
-  { href: "/questions", label: "Questions", icon: HelpCircle },
+  { href: "/meetings", label: "Meeting Notes", icon: Users },
   { href: "/inbox", label: "Inbox", icon: Inbox },
   { href: "/review", label: "Weekly review", icon: ScrollText },
 ];

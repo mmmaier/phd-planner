@@ -9,6 +9,7 @@ import { EditableText } from "@/components/ui/editable-text";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import {
   useSupervisorMeeting,
   updateSupervisorMeeting,
@@ -18,11 +19,13 @@ import {
   removeActionItem,
   convertActionItemToTask,
 } from "@/lib/db/supervisor-meetings";
+import { usePeople } from "@/lib/db/people";
 
 export default function MeetingDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const meeting = useSupervisorMeeting(params.id);
+  const people = usePeople();
   const [newItem, setNewItem] = useState("");
 
   if (meeting === undefined) {
@@ -37,16 +40,30 @@ export default function MeetingDetailPage() {
         className="mb-6 flex items-center gap-1.5 text-sm text-ink-faint hover:text-ink"
       >
         <ArrowLeft className="size-4" strokeWidth={1.75} />
-        Meetings
+        Meeting Notes
       </button>
 
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
         <input
           type="date"
           value={meeting.date}
           onChange={(e) => updateSupervisorMeeting(meeting.id, { date: e.target.value })}
           className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-ink outline-none"
         />
+        <Select
+          value={meeting.personId ?? ""}
+          onChange={(e) =>
+            updateSupervisorMeeting(meeting.id, { personId: e.target.value || null })
+          }
+          className="w-auto py-1.5 pr-7 text-sm"
+        >
+          <option value="">Unassigned</option>
+          {(people ?? []).map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <Panel className="flex flex-col gap-6">

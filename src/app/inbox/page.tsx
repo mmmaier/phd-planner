@@ -31,6 +31,7 @@ export default function InboxPage() {
     await addTask({
       title: content,
       date: null,
+      deadline: null,
       completed: false,
       completedAt: null,
       projectId: null,

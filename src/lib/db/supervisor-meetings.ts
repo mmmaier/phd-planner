@@ -76,6 +76,7 @@ export async function convertActionItemToTask(meetingId: string, itemId: string)
   const task = await addTask({
     title: item.text,
     date: null,
+    deadline: null,
     completed: false,
     completedAt: null,
     projectId: null,
