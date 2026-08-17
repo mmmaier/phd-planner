@@ -4,7 +4,8 @@ import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Plus, Settings2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { usePeople, addPerson, deletePerson } from "@/lib/db/people";
+import { EditableText } from "@/components/ui/editable-text";
+import { usePeople, addPerson, updatePerson, deletePerson } from "@/lib/db/people";
 
 export function PersonManager() {
   const people = usePeople();
@@ -39,18 +40,27 @@ export function PersonManager() {
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
             People
           </p>
-          <ul className="mb-3 flex flex-col gap-1">
+          <ul className="mb-3 flex flex-col gap-1.5">
             {(people ?? []).map((p) => (
-              <li key={p.id} className="group flex items-center gap-2 rounded-lg px-1.5 py-1">
-                <span className="flex-1 text-sm text-ink">
-                  {p.name}
-                  {p.role && <span className="ml-1.5 text-xs text-ink-faint">{p.role}</span>}
-                </span>
+              <li key={p.id} className="group flex items-start gap-2 rounded-lg px-1.5 py-1">
+                <div className="flex-1">
+                  <EditableText
+                    value={p.name}
+                    onSave={(name) => updatePerson(p.id, { name })}
+                    className="text-sm"
+                  />
+                  <EditableText
+                    value={p.role}
+                    onSave={(role) => updatePerson(p.id, { role })}
+                    placeholder="Role (optional)…"
+                    className="text-xs text-ink-faint"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => deletePerson(p.id)}
                   aria-label={`Remove ${p.name}`}
-                  className="rounded p-0.5 text-ink-faint opacity-0 transition-opacity hover:text-ink group-hover:opacity-100"
+                  className="mt-0.5 rounded p-0.5 text-ink-faint opacity-0 transition-opacity hover:text-ink group-hover:opacity-100"
                 >
                   <X className="size-3.5" />
                 </button>

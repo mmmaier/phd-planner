@@ -1,21 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { EditableText } from "@/components/ui/editable-text";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ProjectChipSelect } from "@/components/projects/project-chip-select";
 import { ProjectColorPopover } from "@/components/projects/project-color-popover";
-import { relativeDayLabel, todayStamp } from "@/lib/dates";
-import {
-  useAllTasks,
-  addTask,
-  updateTask,
-  toggleTaskCompleted,
-  deleteTask,
-} from "@/lib/db/tasks";
+import { TodoRow } from "@/components/todos/todo-row";
+import { useAllTasks, addTask } from "@/lib/db/tasks";
 import { useActiveProjects } from "@/lib/db/projects";
 import type { Task } from "@/lib/db/types";
 
@@ -113,62 +105,9 @@ export default function TodosPage() {
         </div>
       ) : (
         <ul className="flex flex-col gap-1">
-          {todos.map((t) => {
-            const project = projects?.find((p) => p.id === t.projectId);
-            const overdue = !t.completed && !!t.deadline && t.deadline < todayStamp();
-            return (
-              <li
-                key={t.id}
-                className="group flex items-center gap-3 rounded-xl px-3 py-2"
-                style={{
-                  backgroundColor: project
-                    ? `color-mix(in oklab, ${project.color} 12%, transparent)`
-                    : undefined,
-                }}
-              >
-                <Checkbox
-                  checked={t.completed}
-                  onCheckedChange={(completed) => toggleTaskCompleted(t.id, completed)}
-                  aria-label={t.title}
-                />
-                {project && (
-                  <span
-                    className="size-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: project.color }}
-                  />
-                )}
-                <EditableText
-                  value={t.title}
-                  onSave={(value) => updateTask(t.id, { title: value })}
-                  className={
-                    t.completed ? "flex-1 text-sm text-ink-faint line-through" : "flex-1 text-sm"
-                  }
-                />
-                {project && (
-                  <span className="shrink-0 text-xs text-ink-muted">{project.title}</span>
-                )}
-                {t.deadline && (
-                  <span
-                    className={
-                      overdue
-                        ? "shrink-0 text-xs font-medium text-type-deadline"
-                        : "shrink-0 text-xs text-ink-faint"
-                    }
-                  >
-                    {relativeDayLabel(t.deadline)}
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => deleteTask(t.id)}
-                  aria-label="Delete to-do"
-                  className="shrink-0 rounded p-1 text-ink-faint opacity-0 transition-opacity hover:text-ink group-hover:opacity-100"
-                >
-                  <X className="size-3.5" />
-                </button>
-              </li>
-            );
-          })}
+          {todos.map((t) => (
+            <TodoRow key={t.id} task={t} projects={projects ?? []} />
+          ))}
         </ul>
       )}
     </div>
